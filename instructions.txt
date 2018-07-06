@@ -1,0 +1,2 @@
+behave -f allure_behave.formatter:AllureFormatter -o results ./features
+allure generate results/ -o report/

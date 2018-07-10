@@ -1,5 +1,5 @@
-
 from behave import given, when, then
+from selenium.common.exceptions import ElementClickInterceptedException
 import allure
 
 
@@ -8,8 +8,14 @@ def step_start_page (context):
     context.driver.get('http://poczta.onet.pl/')
     rodo = context.driver.find_element_by_css_selector("button.cmp-button_button.cmp-intro_acceptAll")
 
+    try:
+        rodo.click()
+    except ElementClickInterceptedException:
+        print("Element RODO not not found!")
+
     if rodo.is_displayed():
         rodo.click()
+
 
 @when('user fills valid username {username} and valid password {password} and submits it')
 def step_set_login_in(context, username, password):
@@ -31,7 +37,15 @@ def step_set_login_in(context, invalidusername, invalidpassword):
 
 @then('User can see alert about invalid date')
 def step_valid_login(context):
-   context.driver.save_screenshot("screenshot-invalidlogin.png")
-   assert context.driver.find_element_by_css_selector('div.messageContent')
+
+    try:
+        alert_content = context.driver.find_element_by_css_selector("div.messageContent")
+        assert alert_content.text == "Wprowadź poprawny adres e-mail" or "Niepoprawny e-mail lub hasło"
+        print(alert_content)
+        context.driver.save_screenshot("screenshot-invalidlogin.png")
+    except:
+        print("Alert not found!")
 
 
+    print(alert_content)
+    context.driver.save_screenshot("screenshot-invalidlogin.png")
